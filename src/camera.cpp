@@ -87,7 +87,7 @@ namespace mt
 
 		if (u >= 0 && u < m_width && v >= 0 && v < m_height)
 		{
-			m_picture[(int)v * m_width + (int)u] = c;
+			m_picture[(int)v * m_width + (int)u]= c;
 		}
 	}
 

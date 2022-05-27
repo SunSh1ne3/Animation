@@ -9,6 +9,7 @@ namespace mt
 	public:
 		Scene(int width, int height);
 		~Scene();
+		Point* GetPoint();
 		void LifeCycle();
 
 	private:
