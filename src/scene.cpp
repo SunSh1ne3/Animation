@@ -1,5 +1,7 @@
 #include <scene.hpp>
 #define PI 3.14
+using namespace std;
+using namespace mt;
 namespace mt
 {
 	Scene::Scene(int width, int height)
@@ -12,7 +14,7 @@ namespace mt
 		m_sprite = std::make_unique<sf::Sprite>(*m_texture);
 
 		Intrinsic intrinsic = { 960.0, 540.0, 960.0, 540.0 };
-		Point position = { 0.0, 0.0, 0.0 };
+		Point position = { 0.0, -1.0, 0.0 };
 		Angles angles = { 0.0,0.0,0.0 };
 		m_camera = std::make_unique<Camera>(m_width, m_height, intrinsic, position, angles);
 
@@ -29,48 +31,50 @@ namespace mt
 
 	void Scene::LifeCycle()
 	{
+		double y0 = 0;
 		while (m_window->isOpen()) 
 		{
-
-
-			sf::Event event;
-			while (m_window->pollEvent(event))
-				if (event.type == sf::Event::Closed)
-					m_window->close();
-
 			float Mx = sf::Mouse::getPosition().x;
 			float My = sf::Mouse::getPosition().y;
 
+			sf::Event event;
+			while (m_window->pollEvent(event))
+				if ((event.type == sf::Event::Closed) || ( sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)))
+					m_window->close();
+
+
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 			{
-				m_camera->dZ(0.05);
+				m_camera->dZ(0.1);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			{
-				m_camera->dZ(-0.05);
+				m_camera->dZ(-0.1);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 			{
-				m_camera->dX(-0.05);
+				m_camera->dX(-0.1);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
-				m_camera->dX(0.05);
+				m_camera->dX(0.1);
 			}
 
-			if ((sf::Mouse::getPosition(*m_window).x <= m_width / 2 - 150) && (sf::Mouse::getPosition(*m_window).x < m_width))
+			double d = acos((m_width/2 * sf::Mouse::getPosition(*m_window).x + m_height/2 * sf::Mouse::getPosition(*m_window).y) /((sqrt(pow(m_width, 2) + pow(sf::Mouse::getPosition(*m_window).x, 2))) *(sqrt(pow(m_height/2, 2) + pow(sf::Mouse::getPosition(*m_window).y, 2)))))*180/PI;
+	
+			if ((sf::Mouse::getPosition(*m_window).x <= m_width / 2 ) && d!=0)
 			{
-				m_camera->dPitch(-0.02);
+				m_camera->dPitch(-d);
 			}
-			if (sf::Mouse::getPosition(*m_window).x >= m_width / 2 + 150)
+			if ((sf::Mouse::getPosition(*m_window).x >= m_width / 2 + 100) && (sf::Mouse::isButtonPressed(sf::Mouse::Left)))
 			{
 				m_camera->dPitch(0.02);
 			}
-			if (sf::Mouse::getPosition(*m_window).y >= m_height / 2 + 150)
+			if ((sf::Mouse::getPosition(*m_window).y >= m_height / 2 + 100) && (sf::Mouse::isButtonPressed(sf::Mouse::Left)))
 			{
 				m_camera->dRoll(0.02);
 			}
-			if (sf::Mouse::getPosition(*m_window).y <= m_height / 2 - 150)
+			if ((sf::Mouse::getPosition(*m_window).y <= m_height / 2 - 100) && (sf::Mouse::isButtonPressed(sf::Mouse::Left)))
 			{
 				m_camera->dRoll(-0.02);
 			}
@@ -85,25 +89,6 @@ namespace mt
 					m_points[m_size].z = r * cos(teta);
 					m_size++;
 				}
-			/*
-			for (double fi = 0; fi < 2*PI; fi += 0.01)
-				for (double teta = 0; teta < 1.57; teta += 0.01)
-				{
-					m_points[m_size].x = r * sin(teta) * cos(fi);
-					m_points[m_size].y = r * sin(fi) * sin(teta) + 5;
-					m_points[m_size].z = r * cos(teta)*cos(fi);
-					m_size++;
-				}
-			*/
-			for (int i = 0; i < 10; i++)
-			{
-				for (int j = 0; j < 10; j++)
-				{
-
-				}
-			}
-
-
 
 			// Проецирование точек
 			for (int i = 0; i < m_size; i++)
@@ -115,6 +100,7 @@ namespace mt
 
 			m_window->clear();
 			m_window->draw(*m_sprite);
+
 
 			m_window->display();
 
