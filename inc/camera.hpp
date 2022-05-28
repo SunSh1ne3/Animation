@@ -1,4 +1,5 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 #include <iostream>
 
 namespace mt
@@ -33,6 +34,8 @@ namespace mt
 		Pixel* Picture();
 		void Fill(Pixel pixel);
 		void Clear();
+		Point Camera::GetCoordinates();
+		Point Camera::SetCoordinates(double x, double y);
 		void ProjectPoint(Point p, Pixel c);
 		void dX(double d);
 		void dZ(double d);

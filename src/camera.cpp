@@ -37,6 +37,12 @@ namespace mt
 		Fill({ 0,0,0,0 });
 	}
 
+	Point Camera::GetCoordinates() { return m_position; }
+	Point Camera::SetCoordinates(double x, double y)
+	{
+		return m_position;
+	}
+
 	void Camera::ProjectPoint(Point p, Pixel c)
 	{
 		// Наклон камеры на 90 градусов
@@ -93,16 +99,17 @@ namespace mt
 
 	void Camera::dX(double d) 
 	{
+		
 		m_position.x += d * cos(-m_angles.pitch);
 		m_position.y += 0;
 		m_position.z += d * sin(-m_angles.pitch);
 	}
 
 	void Camera::dZ(double d) 
-	{
-		m_position.x += d * sin(m_angles.pitch);
-		m_position.y += d * sin(m_angles.roll);
-		m_position.z += d * cos(m_angles.pitch);
+	{	
+			m_position.x += d * sin(m_angles.pitch);
+			m_position.y += d * sin(m_angles.roll);
+			m_position.z += d * cos(m_angles.pitch);
 	}
 
 	void Camera::dRoll(double droll) 
