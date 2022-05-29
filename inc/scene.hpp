@@ -2,9 +2,14 @@
 #include <SFML/Graphics.hpp>
 #include <camera.hpp>
 #include <cmath>
+#include<chrono>
+#include<thread>
+using namespace std;
+using namespace sf;
 
 namespace mt
 {
+
 	class Scene
 	{
 	public:
@@ -12,16 +17,16 @@ namespace mt
 		~Scene();
 		Point* GetPoint();
 		void LifeCycle();
-
+		
 	private:
-		std::unique_ptr<Camera> m_camera;
-
+		unique_ptr<Camera> m_camera;
+		
 		int m_width;
 		int m_height;
 
-		std::unique_ptr<sf::RenderWindow> m_window;
-		std::unique_ptr<sf::Texture> m_texture;
-		std::unique_ptr<sf::Sprite> m_sprite;
+		unique_ptr<sf::RenderWindow> m_window;
+		unique_ptr<sf::Texture> m_texture;
+		unique_ptr<sf::Sprite> m_sprite;
 
 		Point* m_points = nullptr;
 		int m_size = 0;

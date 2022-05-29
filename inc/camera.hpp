@@ -1,7 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <iostream>
-
+using namespace std;
+using namespace sf;
 namespace mt
 {
 	struct Point
@@ -34,9 +35,12 @@ namespace mt
 		Pixel* Picture();
 		void Fill(Pixel pixel);
 		void Clear();
-		Point Camera::GetCoordinates();
-		Point Camera::SetCoordinates(double x, double y);
+
+		void SetCoordinates(double x, double y);
 		void ProjectPoint(Point p, Pixel c);
+		void ProjectObject(CircleShape circle, Pixel c);
+		void RotateCamera(Vector2i &LastMousPos, unique_ptr<Camera> &m_camera , unique_ptr<RenderWindow> &m_window);
+
 		void dX(double d);
 		void dZ(double d);
 		void dRoll(double droll);
