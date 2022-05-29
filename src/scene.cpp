@@ -18,7 +18,7 @@ namespace mt
 		m_sprite = std::make_unique<sf::Sprite>(*m_texture);
 
 		Intrinsic intrinsic = { 960.0, 540.0, 960.0, 540.0 };
-		Point position = { 0.0, 0.0, 0.0 };
+		Point position = { 0.0, 0.0, 1.0 };
 		Angles angles = { 0.0,0.0,0.0 };
 		m_camera = std::make_unique<Camera>(m_width, m_height, intrinsic, position, angles);
 
@@ -39,14 +39,18 @@ namespace mt
 	Vector2i LastMousPos;
 	void Scene::LifeCycle()
 	{
-		CircleShape circle(5);
-
+		Shape wer();
+		Point* m_pointX = new Point[200000];
+		Point* m_pointY = new Point[200000];
+		Point* m_pointZ = new Point[200000];
+		CircleShape circle(2);
+		circle.setPosition(m_width / 2, m_height / 2);
 		sf::Mouse::setPosition(sf::Vector2i(m_width / 2, m_height / 2), *m_window);
-		m_window->setFramerateLimit(60);
+		//m_window->setFramerateLimit(60);
 		while (m_window->isOpen()) 
 		{
-
 			m_camera->RotateCamera(LastMousPos, m_camera, m_window);
+			
 			sf::Event event;
 			while (m_window->pollEvent(event))
 			{
@@ -54,44 +58,10 @@ namespace mt
 					m_window->close();
 			}
 
-			//m_window->setMouseCursorVisible(false);
-		
-			//перемещение камеры
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-			{
-				m_camera->dZ(0.1);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-			{
-				m_camera->dZ(-0.1);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-			{
-				m_camera->dX(-0.1);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-			{
-				m_camera->dX(0.1);
-			}
-			
-			//границы мыши по окну
-			if  (sf::Mouse::getPosition(*m_window).y <= 0)
-			{
-				sf::Mouse::setPosition({ sf::Mouse::getPosition(*m_window).x,m_height-10 },*m_window);
-			}
-			if (sf::Mouse::getPosition(*m_window).y >= m_height-40)
-			{
-				sf::Mouse::setPosition({ sf::Mouse::getPosition(*m_window).x ,5 },*m_window);
-			}
-			if (sf::Mouse::getPosition(*m_window).x >= m_width-10)
-			{
-				sf::Mouse::setPosition({ 10 ,sf::Mouse::getPosition(*m_window).y },*m_window);
-			}
-			if (sf::Mouse::getPosition(*m_window).x <= 0)
-			{
-				sf::Mouse::setPosition({ m_width - 5 ,sf::Mouse::getPosition(*m_window).y },*m_window);
-			}
 
+			m_window->setMouseCursorVisible(false);
+	
+			m_camera->MoveCamera(m_camera);
 
 			LastMousPos = Mouse::getPosition(*m_window);
 
@@ -114,14 +84,41 @@ namespace mt
 					m_points[m_size].y = r * sin(teta) * sin(fi);
 					m_points[m_size].z = r * cos(teta);
 					m_size++;
+				}	
+				for (double i = 0; i < 2*PI; i += 0.01)
+				{
+					m_pointX[m_size].x = i;
+					m_pointX[m_size].y = 0;
+					m_pointX[m_size].z = 0;
+					m_size++;
+				}
+				for (double i = 0; i < 2*PI; i += 0.01)
+				{
+					m_pointY[m_size].x = 0;
+					m_pointY[m_size].y = i;
+					m_pointY[m_size].z = 0;
+					m_size++;
+				}
+				for (double i = 0; i < 2*PI; i += 0.01)
+				{
+					m_pointZ[m_size].x = 0;
+					m_pointZ[m_size].y = 0;
+					m_pointZ[m_size].z = i;
+					m_size++;
 				}
 		
 			// Проецирование точек
 			for (int i = 0; i < m_size; i++)
 				m_camera->ProjectPoint(m_points[i], { 150, 34, 100, 255 });
-
 			for (int i = 0; i < m_size; i++)
-			m_camera->ProjectObject(circle , { 255, 45, 34, 255 });
+				m_camera->ProjectPoint(m_pointX[i], { 255, 255, 255, 255 });
+			for (int i = 0; i < m_size; i++)
+				m_camera->ProjectPoint(m_pointY[i], { 0, 255, 0, 255 });
+			for (int i = 0; i < m_size; i++)
+				m_camera->ProjectPoint(m_pointZ[i], { 0, 0,255, 255 });
+
+
+			//m_camera->ProjectObject(circle);
 			
 
 			m_texture->update((uint8_t*)m_camera->Picture(), 1920, 1080, 0, 0);
@@ -130,14 +127,15 @@ namespace mt
 
 			m_window->clear();
 			m_window->draw(*m_sprite);
-			m_window->draw(circle);
 
 
 
 			m_window->display();
-		
+			
 		}
-
+		delete[] m_pointX;
+		delete[] m_pointY;
+		delete[] m_pointZ;
 	}
 	
 	

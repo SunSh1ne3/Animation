@@ -37,7 +37,6 @@ namespace mt
 		Fill({ 0,0,0,0 });
 	}
 
-
 	void Camera::SetCoordinates(double x, double y)
 	{
 		m_position.x = x;
@@ -53,14 +52,36 @@ namespace mt
 
 		if (Dx != 0)
 		{
-			m_camera->dPitch(Dx * 0.002);
+			m_camera->dPitch(Dx * 0.003);
+			Mouse::setPosition({ m_width / 2,m_height / 2 }, *m_window);
 		}
 		if (Dy != 0)
 		{
-			m_camera->dRoll(Dy * 0.005);
+			m_camera->dRoll(Dy * 0.003);
+			Mouse::setPosition({ m_width / 2,m_height / 2 }, *m_window);
 		}
 
 		LastMousPos = MousePos;
+	}
+
+	void Camera::MoveCamera(unique_ptr<Camera>& m_camera)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{
+			m_camera->dZ(0.1);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			m_camera->dZ(-0.1);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			m_camera->dX(-0.1);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			m_camera->dX(0.1);
+		}
 	}
 
 	void Camera::ProjectPoint(Point p, Pixel c)
@@ -113,64 +134,9 @@ namespace mt
 
 		if (u >= 0 && u < m_width && v >= 0 && v < m_height)
 		{
-			m_picture[(int)v * m_width + (int)u]= c;
+			m_picture[(int)v * m_width + (int)u] = c;
 		}
 	}
-	
-	void Camera::ProjectObject(CircleShape circle, Pixel c)
-	{
-		// Наклон камеры на 90 градусов
-		double X = circle.getPosition().x;
-		double Y = -circle.getPosition().y;
-		double Z = circle.getPosition().x;
-
-		double a = m_angles.roll;
-		double b = m_angles.pitch;
-		double g = m_angles.yaw;
-
-		double cosa = cos(a);
-		double cosb = cos(b);
-		double sina = sin(a);
-		double sinb = sin(b);
-
-		Mat33d R({ {
-						  {cosb, 0, -sinb},
-						  {-sina * sinb, cosa, -sina * cosb},
-						  {cosa * sinb, sina, cosa * cosb}
-				  } });
-
-		Vec3d P({ {
-						 {X - m_position.x},
-						 {Y - m_position.y},
-						 {Z - m_position.z}
-				 } });
-
-		Vec3d P_res;
-
-		P_res = R * P;
-
-		double x = P_res.get(0, 0);
-		double y = P_res.get(1, 0);
-		double z = P_res.get(2, 0);
-
-		// объект находится за камерой
-		if (z <= 0)
-			return;
-
-		// Перспективная проекция (3D->2D)
-		double u = x / z;
-		double v = y / z;
-
-		// Применение внутренних параметров камеры
-		u = u * m_intrinsic.fu + m_intrinsic.du;
-		v = v * m_intrinsic.fv + m_intrinsic.dv;
-
-		if (u >= 0 && u < m_width && v >= 0 && v < m_height)
-		{
-			m_picture[(int)v * m_width + (int)u]= c;
-		}
-	}
-
 
 	void Camera::dX(double d) 
 	{
