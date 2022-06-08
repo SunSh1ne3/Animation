@@ -1,34 +1,28 @@
 #pragma once
-#include "scene.hpp"
+#include <camera.hpp>
+#include <cmath>
 
 using namespace mt;
-namespace create
+
+namespace edit
 {
 	class Edit
 	{
-		Edit()
-		{
+	public:
+		Edit(double rad);
+		Edit(double rad, double Dteta);
 
-		}
+		~Edit();
 
-		~Edit()
-		{
+		void Move(double dist, double angle);
+		Point GetPoint(int i);
+		int GetSize();
 
-		}
-		
-		/*double Sphere()
-		{
-			double 
-			m_size = 0;
-			double r = 1;
-			for (double fi = 0; fi < 2 * PI; fi += 0.01)
-				for (double teta = 0; teta < PI / 2; teta += 0.01)
-				{
-					GetPoint()[m_size].x = r * sin(teta) * cos(fi);
-					m_points[m_size].y = r * sin(teta) * sin(fi) + 5;
-					m_points[m_size].z = r * cos(teta);
-					m_size++;
-				}
-		}
-		*/	};
+	private:
+		Point* m_points = nullptr;
+		double m_radius=0;
+		double m_distance = 0;
+		double m_angle = 0;
+		int m_size = 0;
+	};
 }

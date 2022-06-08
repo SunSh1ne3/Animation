@@ -37,13 +37,7 @@ namespace mt
 		Fill({ 0,0,0,0 });
 	}
 
-	void Camera::SetCoordinates(double x, double y)
-	{
-		m_position.x = x;
-		m_position.y = y;
-	}
-
-	void Camera::RotateCamera(Vector2i &LastMousPos, unique_ptr<Camera> &m_camera, unique_ptr<RenderWindow> &m_window)
+	void Camera::RotateCamera(Vector2i &LastMousPos, unique_ptr<Camera> &m_camera, unique_ptr<RenderWindow> &m_window, double dangle)
 	{
 		Vector2i MousePos = Mouse::getPosition(*m_window);
 
@@ -52,48 +46,67 @@ namespace mt
 
 		if (Dx != 0)
 		{
-			m_camera->dPitch(Dx * 0.003);
+			m_camera->dPitch(Dx * dangle);
 			Mouse::setPosition({ m_width / 2,m_height / 2 }, *m_window);
 		}
 		if (Dy != 0)
 		{
-			m_camera->dRoll(Dy * 0.003);
+			m_camera->dRoll(Dy * dangle);
 			Mouse::setPosition({ m_width / 2,m_height / 2 }, *m_window);
 		}
 
 		LastMousPos = MousePos;
 	}
 
-	void Camera::MoveCamera(unique_ptr<Camera>& m_camera)
+	void Camera::MoveCamera(unique_ptr<Camera>& m_camera, double kof)
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
-			m_camera->dZ(0.1);
+			m_camera->dZ(kof);
 		}
+		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)))
+		{
+			m_camera->dZ(3*kof);
+		}
+		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
-			m_camera->dZ(-0.1);
+			m_camera->dZ(-kof);
 		}
+		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)))
+		{
+			m_camera->dZ(-3 * kof);
+		}
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			m_camera->dX(-0.1);
+			m_camera->dX(-kof);
 		}
+		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::A)) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)))
+		{
+			m_camera->dX(-3*kof);
+		}
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
-			m_camera->dX(0.1);
+			m_camera->dX(kof);
 		}
+		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::D)) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)))
+		{
+			m_camera->dX(3*kof);
+		}
+		
 	}
 
 	void Camera::ProjectPoint(Point p, Pixel c)
 	{
-		// Наклон камеры на 90 градусов
+		// Camera tilt 90 degrees
 		double X = p.x;
 		double Y = -p.z;
 		double Z = p.y;
 
 		double a = m_angles.roll;
 		double b = m_angles.pitch;
-		double g = m_angles.yaw;
 
 		double cosa = cos(a);
 		double cosb = cos(b);
@@ -120,15 +133,15 @@ namespace mt
 		double y = P_res.get(1, 0);
 		double z = P_res.get(2, 0);
 
-		// объект находится за камерой
+		// the object is behind the camera
 		if (z <= 0)
 			return;
 
-		// Перспективная проекция (3D->2D)
+		// Perspective projection (3D->2D)
 		double u = x / z;
 		double v = y / z;
 
-		// Применение внутренних параметров камеры
+		// Apply inside camera settings
 		u = u * m_intrinsic.fu + m_intrinsic.du;
 		v = v * m_intrinsic.fv + m_intrinsic.dv;
 

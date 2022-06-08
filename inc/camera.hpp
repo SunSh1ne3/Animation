@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <vector>
+
 using namespace std;
 using namespace sf;
 namespace mt
@@ -13,7 +13,7 @@ namespace mt
 
 	struct Angles
 	{
-		double roll, pitch, yaw;
+		double roll, pitch;
 	};
 
 	struct Pixel
@@ -37,10 +37,11 @@ namespace mt
 		void Fill(Pixel pixel);
 		void Clear();
 
-		void SetCoordinates(double x, double y);
 		void ProjectPoint(Point p, Pixel c);
-		void RotateCamera(Vector2i &LastMousPos, unique_ptr<Camera> &m_camera , unique_ptr<RenderWindow> &m_window);
-		void MoveCamera(unique_ptr<Camera>& m_camera);
+
+		void RotateCamera(Vector2i &LastMousPos, unique_ptr<Camera> &m_camera , unique_ptr<RenderWindow> &m_window, double dangle);
+		void MoveCamera(unique_ptr<Camera>& m_camera, double kof);
+
 		void dX(double d);
 		void dZ(double d);
 		void dRoll(double droll);
@@ -49,6 +50,7 @@ namespace mt
 	private:
 		int m_width;
 		int m_height;
+
 		Pixel* m_picture;
 
 		Intrinsic m_intrinsic;

@@ -1,55 +1,51 @@
 #include <scene.hpp>
-
 #define PI 3.1415926535
-using namespace std;
-using namespace mt;
-using namespace std::chrono_literals;
 
 namespace mt
 {
-	
 	Scene::Scene(int width, int height)
 	{
 		m_width = width;
 		m_height = height;
-		m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(m_width, m_height), "3D Engine");
-		m_texture = std::make_unique<sf::Texture>();
+		m_window = make_unique<sf::RenderWindow>(sf::VideoMode(m_width, m_height), "3D Engine");
+		m_texture = make_unique<sf::Texture>();
 		m_texture->create(m_width, m_height);
-		m_sprite = std::make_unique<sf::Sprite>(*m_texture);
+		m_sprite = make_unique<sf::Sprite>(*m_texture);
 
-		Intrinsic intrinsic = { 960.0, 540.0, 960.0, 540.0 };
-		Point position = { 0.0, 0.0, 1.0 };
-		Angles angles = { 0.0,0.0,0.0 };
+		Intrinsic intrinsic = { 540, 540.0, 540, 540.0 };
+		Point position = { 0.0, 0.0, 0.0 };
+		Angles angles = { 0.0,0.0 };
 		m_camera = std::make_unique<Camera>(m_width, m_height, intrinsic, position, angles);
-
-		m_points = new Point[200000];
-		
-
 	}
-
+	
 	Scene::~Scene()
 	{
-		if (m_points != nullptr)
-			delete[] m_points;
 	}
 
-	Point* Scene::GetPoint() { return m_points; }
-	
-
 	Vector2i LastMousPos;
+
 	void Scene::LifeCycle()
 	{
-		Shape wer();
-		Point* m_pointX = new Point[200000];
-		Point* m_pointY = new Point[200000];
-		Point* m_pointZ = new Point[200000];
-		CircleShape circle(2);
-		circle.setPosition(m_width / 2, m_height / 2);
+		//Edit Planets
+		Edit* Sun = new Edit(0.33);
+		Edit* Mercury = new Edit(0.12);
+		Edit* Venus = new Edit(0.16);
+		Edit* Earth = new Edit(0.19);
+		Edit* Mars = new Edit(0.16);
+		Edit* Jupiter = new Edit(0.22);
+		Edit* Saturn = new Edit(0.20);
+		Edit* Uranus = new Edit(0.19);
+		Edit* Neptune = new Edit(0.18);
+		Edit* Pluto = new Edit(0.11);
+
+		//creation of planetary paths
+		Edit* Pole = new Edit(60, 0.09);
+
 		sf::Mouse::setPosition(sf::Vector2i(m_width / 2, m_height / 2), *m_window);
-		//m_window->setFramerateLimit(60);
+		double velocity = 0;
 		while (m_window->isOpen()) 
 		{
-			m_camera->RotateCamera(LastMousPos, m_camera, m_window);
+			m_camera->RotateCamera(LastMousPos, m_camera, m_window, 0.002);
 			
 			sf::Event event;
 			while (m_window->pollEvent(event))
@@ -58,85 +54,46 @@ namespace mt
 					m_window->close();
 			}
 
-
 			m_window->setMouseCursorVisible(false);
 	
-			m_camera->MoveCamera(m_camera);
+			m_camera->MoveCamera(m_camera, 0.03);
 
 			LastMousPos = Mouse::getPosition(*m_window);
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::T))
-			{
-				m_camera->SetCoordinates(0, -5);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-			{
-				m_camera->SetCoordinates(0, 0);
-			}
-		
-
-			m_size = 0;
-			double r = 1;
-			for (double fi = 0; fi < 2*PI; fi += 0.01)
-				for (double teta = 0; teta < PI/2; teta += 0.01)
-				{
-					m_points[m_size].x = r * sin(teta) * cos(fi);
-					m_points[m_size].y = r * sin(teta) * sin(fi);
-					m_points[m_size].z = r * cos(teta);
-					m_size++;
-				}	
-				for (double i = 0; i < 2*PI; i += 0.01)
-				{
-					m_pointX[m_size].x = i;
-					m_pointX[m_size].y = 0;
-					m_pointX[m_size].z = 0;
-					m_size++;
-				}
-				for (double i = 0; i < 2*PI; i += 0.01)
-				{
-					m_pointY[m_size].x = 0;
-					m_pointY[m_size].y = i;
-					m_pointY[m_size].z = 0;
-					m_size++;
-				}
-				for (double i = 0; i < 2*PI; i += 0.01)
-				{
-					m_pointZ[m_size].x = 0;
-					m_pointZ[m_size].y = 0;
-					m_pointZ[m_size].z = i;
-					m_size++;
-				}
-		
-			// Проецирование точек
-			for (int i = 0; i < m_size; i++)
-				m_camera->ProjectPoint(m_points[i], { 150, 34, 100, 255 });
-			for (int i = 0; i < m_size; i++)
-				m_camera->ProjectPoint(m_pointX[i], { 255, 255, 255, 255 });
-			for (int i = 0; i < m_size; i++)
-				m_camera->ProjectPoint(m_pointY[i], { 0, 255, 0, 255 });
-			for (int i = 0; i < m_size; i++)
-				m_camera->ProjectPoint(m_pointZ[i], { 0, 0,255, 255 });
-
-
-			//m_camera->ProjectObject(circle);
+			//move planets
+			velocity += 0.02;
 			
+			Mercury->Move(0.6, velocity);
+			Venus->Move(1.2, velocity+1);
+			Earth->Move(1.8, -velocity-2);
+			Mars->Move(2.4, velocity+3);
+			Jupiter->Move(3,velocity+4);
+			Saturn->Move(3.6, -velocity-5);
+			Uranus->Move(4.2, velocity+6);
+			Neptune->Move(4.8, velocity+7);
+			Pluto->Move(5.4, -velocity-8);
+			
+			for (int i = 0; i < Sun->GetSize(); i++)
+			{
+				m_camera->ProjectPoint(Sun->GetPoint(i), {255, 252, 0, 255});			
+				m_camera->ProjectPoint(Mercury->GetPoint(i), { 105, 105, 105, 200 });
+				m_camera->ProjectPoint(Venus->GetPoint(i), {254, 102, 0, 255});
+				m_camera->ProjectPoint(Earth->GetPoint(i), { 0,155,255, 255 });
+				m_camera->ProjectPoint(Mars->GetPoint(i), { 255, 42, 0, 255 });
+				m_camera->ProjectPoint(Jupiter->GetPoint(i), { 255, 233, 145, 255 });
+				m_camera->ProjectPoint(Saturn->GetPoint(i), { 255, 197, 123, 255 });
+				m_camera->ProjectPoint(Uranus->GetPoint(i), { 137,239,255, 255 });
+				m_camera->ProjectPoint(Neptune->GetPoint(i), { 51,109,255, 255 });
+				m_camera->ProjectPoint(Pluto->GetPoint(i), { 255,239,182, 255 });
+				m_camera->ProjectPoint(Pole->GetPoint(i), {255,241,38, 255});
+			}
 
-			m_texture->update((uint8_t*)m_camera->Picture(), 1920, 1080, 0, 0);
+			m_texture->update((uint8_t*)m_camera->Picture(), 1080, 1080, 0, 0);
 			m_camera->Clear();
-
 
 			m_window->clear();
 			m_window->draw(*m_sprite);
-
-
-
 			m_window->display();
-			
 		}
-		delete[] m_pointX;
-		delete[] m_pointY;
-		delete[] m_pointZ;
 	}
-	
-	
 }
